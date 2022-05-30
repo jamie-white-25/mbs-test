@@ -13,12 +13,12 @@
             title="base"
             name="base"
             :default-name="inputs.base_currency_name"
-            :default-code="inputs.base_currnecy_code"
+            :default-code="inputs.base_currency_code"
             :currencies="currencies"
             @change="
               ({ name, code }) => (
                 (inputs.base_currency_name = name),
-                (inputs.base_currnecy_code = code)
+                (inputs.base_currency_code = code)
               )
             "
           />
@@ -73,7 +73,7 @@
           <p>{{ inputs.convert_currency_name }}</p>
         </div>
         <div class="flex items-center">
-          <p>{{ inputs.base_currnecy_code }}: {{ inputs.base_value }}</p>
+          <p>{{ inputs.base_currency_code }}: {{ inputs.base_value }}</p>
           <span class="mx-5">to</span>
           <p class="mx-5">
             {{ inputs.convert_currency_code }}: {{ inputs.convert_value }}
@@ -114,7 +114,7 @@ const errors = reactive({
 
 const inputs = reactive<Input>({
   base_currency_name: "",
-  base_currnecy_code: "",
+  base_currency_code: "",
   convert_currency_name: "",
   convert_currency_code: "",
   base_value: 0,
@@ -128,8 +128,8 @@ onMounted(() => {
 watch(
   () => inputs.base_currency_name,
   (watched) => {
-    if (inputs.base_currency_name !== "") {
-      selectedCode.value = inputs.base_currnecy_code;
+    if (inputs.base_currency_code !== "") {
+      selectedCode.value = inputs.base_currency_code;
       getCurrency();
     }
   }
@@ -159,7 +159,7 @@ const convert = () => {
   const history: History = {
     base_name: inputs.base_currency_name,
     convert_name: inputs.convert_currency_name,
-    base_code: inputs.base_currnecy_code,
+    base_code: inputs.base_currency_code,
     convert_code: inputs.convert_currency_code,
     base_rate: inputs.base_value,
     convert_rate: convert_rate[0].rate,
