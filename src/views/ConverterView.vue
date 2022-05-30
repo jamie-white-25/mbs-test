@@ -53,6 +53,18 @@
           Convert
         </button>
       </div>
+
+      <div class="mt-10 ml-10">
+        <div class="flex">
+          <h3 class="mx-5">You have converted:</h3>
+          <p>{{ inputs.base_currency_name }} <span class="mx-5">into</span></p>
+          <p>{{ inputs.convert_currency_name }}</p>
+        </div>
+        <div class="flex">
+          <p>{{ inputs.base_value }} <span class="mx-5">into</span></p>
+          <p>{{ inputs.convert_value }}</p>
+        </div>
+      </div>
     </layout-pannel>
   </div>
 </template>
@@ -103,8 +115,7 @@ const convert = () => {
     return currency.code == inputs.convert_currency_code;
   });
 
-  const calcualted: number = calculate(inputs.base_value, convert_rate[0].rate);
-  console.log(calcualted);
+  inputs.convert_value = calculate(inputs.base_value, convert_rate[0].rate);
 };
 
 const getCurrency = async () => {
