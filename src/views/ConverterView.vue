@@ -10,9 +10,15 @@
         <div>
           <form-label name="base" label="Base Currency" />
           <form-select
-            :default-value="inputs.base_currency"
+            :default-name="inputs.base_currency_name"
+            :default-code="inputs.base_currnecy_code"
             :currencies="currencies"
-            @change="(value) => (inputs.base_currency = value)"
+            @change="
+              ({ name, code }) => (
+                (inputs.base_currency_name = name),
+                (inputs.base_currnecy_code = code)
+              )
+            "
           />
         </div>
         <div>
@@ -20,7 +26,7 @@
           <form-select
             :currencies="currencies"
             @change="(value) => (inputs.convert_currency = value)"
-            :disabled="inputs.base_currency ? false : true"
+            :disabled="inputs.base_currency_name ? false : true"
           />
         </div>
       </div>
@@ -28,13 +34,13 @@
       <div class="mt-10 flex ml-10">
         <form-input
           type="number"
-          @input="(value) => (inputs.base_currency = value)"
+          @input="(value) => (inputs.base_currency_name = value)"
         />
         <button
           @click="convert"
           class="mx-5"
           :disabled="
-            inputs.base_currency && inputs.convert_currency ? false : true
+            inputs.base_currency_name && inputs.convert_currency ? false : true
           "
         >
           Convert
@@ -60,10 +66,10 @@ import type Input from "@/types/input";
 
 const selectedCode = ref<string>("gbp");
 const currencies = ref<Currency[]>([]);
-const seelctedCurrencies = ref<Currency[]>([]);
 
 const inputs = reactive<Input>({
-  base_currency: "",
+  base_currency_name: "",
+  base_currnecy_code: "",
   convert_currency: "",
   base_value: 0,
   convert_value: 0,
@@ -74,11 +80,12 @@ onMounted(() => {
 });
 
 watch(
-  () => inputs.base_currency,
+  () => inputs.base_currency_name,
   (watched) => {
-    console.log(inputs.base_currency);
-    if (inputs.base_currency !== "") {
-      selectedCode.value = inputs.base_currency;
+    console.log(inputs.base_currency_name);
+    if (inputs.base_currency_name !== "") {
+      console.log(inputs.base_currnecy_code);
+      selectedCode.value = inputs.base_currnecy_code;
       getCurrency();
     }
   }

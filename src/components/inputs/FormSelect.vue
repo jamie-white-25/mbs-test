@@ -1,21 +1,15 @@
 <template>
-  <select @change="onChange" name="base_currency" class="bg">
-    <option
-      v-for="currnecy in currencies?.filter(
-        (currency) => currency.code == defaultValue
-      )"
-      :key="currnecy.name"
-      :value="currnecy.code"
-    >
-      {{ currnecy.name }}
+  <select name="base_currency" class="bg">
+    <option @click="onChange(defaultName, defaultCode)">
+      {{ defaultName }}
     </option>
 
     <option
       v-for="currnecy in currencies?.filter(
-        (currency) => currency.code != defaultValue
+        (currency) => currency.code != defaultCode
       )"
       :key="currnecy.name"
-      :value="currnecy.code"
+      @click="onChange(currnecy.name, currnecy.code)"
     >
       {{ currnecy.name }}
     </option>
@@ -30,7 +24,11 @@ defineProps({
   currencies: {
     type: Array as PropType<Currency[]>,
   },
-  defaultValue: {
+  defaultName: {
+    type: String,
+    default: () => "",
+  },
+  defaultCode: {
     type: String,
     default: () => "",
   },
@@ -38,8 +36,8 @@ defineProps({
 
 const emit = defineEmits(["change"]);
 
-const onChange = (e: { target: { value: string } }) => {
-  emit("change", e.target.value);
+const onChange = (name: string, code: string) => {
+  emit("change", { name, code });
 };
 </script>
 
