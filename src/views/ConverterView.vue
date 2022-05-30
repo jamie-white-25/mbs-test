@@ -36,11 +36,17 @@
         </div>
       </div>
 
-      <div class="mt-10 flex ml-10">
+      <div class="mt-10 ml-10 flex">
         <form-input
+          :disabled="
+            inputs.base_currency_name && inputs.convert_currency_name
+              ? false
+              : true
+          "
           type="number"
           @input="(value) => (inputs.base_value = value)"
         />
+
         <button
           @click="convert"
           class="mx-5"
@@ -52,19 +58,19 @@
         >
           Convert
         </button>
+        <br />
       </div>
+      <p class="error ml-10" v-show="errors.error">{{ errors.message }}</p>
 
       <div class="mt-10 ml-10" v-show="calculated">
         <div class="flex items-center">
           <h3 class="mx-5">You have converted:</h3>
-          <p>{{ inputs.base_currency_name }} <span class="mx-5">into</span></p>
+          <p>{{ inputs.base_currency_name }} <span class="mx-5">to</span></p>
           <p>{{ inputs.convert_currency_name }}</p>
         </div>
-        <div class="flex">
-          <p>
-            {{ inputs.base_currnecy_code }}: {{ inputs.base_value }}
-            <span class="mx-5">to</span>
-          </p>
+        <div class="flex items-center">
+          <p>{{ inputs.base_currnecy_code }}: {{ inputs.base_value }}</p>
+          <span class="mx-5">to</span>
           <p class="mx-5">
             {{ inputs.convert_currency_code }}: {{ inputs.convert_value }}
           </p>
@@ -76,7 +82,13 @@
 
 <script setup lang="ts">
 import axios from "axios";
-import { onMounted, reactive, ref, watch } from "@vue/runtime-core";
+import {
+  onMounted,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from "@vue/runtime-core";
 import { useCurrencyStore } from "@/stores/currency";
 
 import FormSelect from "@/components/inputs/FormSelect.vue";
@@ -92,6 +104,11 @@ import { calculate } from "@/types/calculate";
 const selectedCode = ref<string>("gbp");
 const currencies = ref<Currency[]>([]);
 const calculated = ref<boolean>(false);
+
+const errors = reactive({
+  error: false,
+  message: "",
+});
 
 const inputs = reactive<Input>({
   base_currency_name: "",
@@ -109,7 +126,6 @@ onMounted(() => {
 watch(
   () => inputs.base_currency_name,
   (watched) => {
-    calculated.value = false;
     if (inputs.base_currency_name !== "") {
       selectedCode.value = inputs.base_currnecy_code;
       getCurrency();
@@ -117,21 +133,20 @@ watch(
   }
 );
 
-watch(inputs, () => {
-  if (
-    !inputs.base_currency_name ||
-    !inputs.base_value ||
-    !inputs.convert_currency_name
-  ) {
-    calculated.value = false;
-  }
-});
-
 const convert = () => {
+  console.log(isNaN(inputs.base_value));
+  if (inputs.base_value <= 0 || isNaN(inputs.base_value)) {
+    errors.error = true;
+    errors.message = "You can only use numbers and must be greater than 0";
+    calculated.value = false;
+    return;
+  }
+
   const convert_rate: Currency[] = currencies.value.filter((currency) => {
     return currency.code == inputs.convert_currency_code;
   });
 
+  errors.error = false;
   inputs.convert_value = calculate(inputs.base_value, convert_rate[0].rate);
   calculated.value = true;
 };
@@ -193,6 +208,10 @@ const getCurrency = async () => {
 
 .container {
   max-width: 1200px;
+}
+
+.error {
+  color: red;
 }
 
 .mx-auto {
