@@ -54,7 +54,7 @@
         </button>
       </div>
 
-      <div class="mt-10 ml-10" v-show="inputs.convert_value > 0">
+      <div class="mt-10 ml-10" v-show="calculated">
         <div class="flex items-center">
           <h3 class="mx-5">You have converted:</h3>
           <p>{{ inputs.base_currency_name }} <span class="mx-5">into</span></p>
@@ -91,6 +91,7 @@ import { calculate } from "@/types/calculate";
 
 const selectedCode = ref<string>("gbp");
 const currencies = ref<Currency[]>([]);
+const calculated = ref<boolean>(false);
 
 const inputs = reactive<Input>({
   base_currency_name: "",
@@ -108,6 +109,7 @@ onMounted(() => {
 watch(
   () => inputs.base_currency_name,
   (watched) => {
+    calculated.value = false;
     if (inputs.base_currency_name !== "") {
       selectedCode.value = inputs.base_currnecy_code;
       getCurrency();
@@ -115,12 +117,23 @@ watch(
   }
 );
 
+watch(inputs, () => {
+  if (
+    !inputs.base_currency_name ||
+    !inputs.base_value ||
+    !inputs.convert_currency_name
+  ) {
+    calculated.value = false;
+  }
+});
+
 const convert = () => {
   const convert_rate: Currency[] = currencies.value.filter((currency) => {
     return currency.code == inputs.convert_currency_code;
   });
 
   inputs.convert_value = calculate(inputs.base_value, convert_rate[0].rate);
+  calculated.value = true;
 };
 
 const getCurrency = async () => {
