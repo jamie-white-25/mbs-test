@@ -25,7 +25,12 @@
           <form-label name="convert" label="Currency to Convert" />
           <form-select
             :currencies="currencies"
-            @change="(value) => (inputs.convert_currency = value)"
+            @change="
+              ({ name, code }) => (
+                (inputs.convert_currency_name = name),
+                (inputs.convert_currency_code = code)
+              )
+            "
             :disabled="inputs.base_currency_name ? false : true"
           />
         </div>
@@ -34,13 +39,15 @@
       <div class="mt-10 flex ml-10">
         <form-input
           type="number"
-          @input="(value) => (inputs.base_currency_name = value)"
+          @input="(value) => (inputs.base_value = value)"
         />
         <button
           @click="convert"
           class="mx-5"
           :disabled="
-            inputs.base_currency_name && inputs.convert_currency ? false : true
+            inputs.base_currency_name && inputs.convert_currency_name
+              ? false
+              : true
           "
         >
           Convert
@@ -63,6 +70,7 @@ import FormInput from "@/components/inputs/FormInput.vue";
 
 import type Currency from "@/types/currency";
 import type Input from "@/types/input";
+import { calculate } from "@/types/calculate";
 
 const selectedCode = ref<string>("gbp");
 const currencies = ref<Currency[]>([]);
@@ -70,7 +78,8 @@ const currencies = ref<Currency[]>([]);
 const inputs = reactive<Input>({
   base_currency_name: "",
   base_currnecy_code: "",
-  convert_currency: "",
+  convert_currency_name: "",
+  convert_currency_code: "",
   base_value: 0,
   convert_value: 0,
 });
@@ -82,9 +91,7 @@ onMounted(() => {
 watch(
   () => inputs.base_currency_name,
   (watched) => {
-    console.log(inputs.base_currency_name);
     if (inputs.base_currency_name !== "") {
-      console.log(inputs.base_currnecy_code);
       selectedCode.value = inputs.base_currnecy_code;
       getCurrency();
     }
@@ -92,9 +99,12 @@ watch(
 );
 
 const convert = () => {
-  const convert_rate: Currency[] = currencies.value.filter(
-    (currency) => inputs.convert_currency == currency.code
-  );
+  const convert_rate: Currency[] = currencies.value.filter((currency) => {
+    return currency.code == inputs.convert_currency_code;
+  });
+
+  const calcualted: number = calculate(inputs.base_value, convert_rate[0].rate);
+  console.log(calcualted);
 };
 
 const getCurrency = async () => {
