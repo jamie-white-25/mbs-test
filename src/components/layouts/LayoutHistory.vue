@@ -1,6 +1,6 @@
 <template>
   <div class="mt-10">
-    <layout-pannel v-if="store.history">
+    <layout-pannel v-if="store.history.length > 0">
       <div class="flex justify-between">
         <table class="mx-auto">
           <tr>
