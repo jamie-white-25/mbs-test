@@ -10,6 +10,8 @@
         <div>
           <form-label name="base" label="Base Currency" />
           <form-select
+            title="base"
+            name="base"
             :default-name="inputs.base_currency_name"
             :default-code="inputs.base_currnecy_code"
             :currencies="currencies"
@@ -24,6 +26,8 @@
         <div>
           <form-label name="convert" label="Currency to Convert" />
           <form-select
+            title="convert"
+            name="convert"
             :currencies="currencies"
             @change="
               ({ name, code }) => (
@@ -77,33 +81,31 @@
         </div>
       </div>
     </layout-pannel>
+    <layout-history />
   </div>
 </template>
 
 <script setup lang="ts">
 import axios from "axios";
-import {
-  onMounted,
-  reactive,
-  ref,
-  watch,
-  watchEffect,
-} from "@vue/runtime-core";
+import { onMounted, reactive, ref, watch } from "@vue/runtime-core";
 import { useCurrencyStore } from "@/stores/currency";
 
 import FormSelect from "@/components/inputs/FormSelect.vue";
 import FormLabel from "@/components/inputs/FormLabel.vue";
 import LayoutPannel from "@/components/layouts/LayoutPannel.vue";
 import LayoutHeader from "@/components/layouts/LayoutHeader.vue";
+import LayoutHistory from "@/components/layouts/LayoutHistory.vue";
 import FormInput from "@/components/inputs/FormInput.vue";
 
 import type Currency from "@/types/currency";
 import type Input from "@/types/input";
+import type History from "@/types/history";
 import { calculate } from "@/types/calculate";
 
 const selectedCode = ref<string>("gbp");
 const currencies = ref<Currency[]>([]);
 const calculated = ref<boolean>(false);
+const store = useCurrencyStore();
 
 const errors = reactive({
   error: false,
@@ -133,8 +135,12 @@ watch(
   }
 );
 
+watch(
+  () => inputs.base_value,
+  () => (calculated.value = false)
+);
+
 const convert = () => {
-  console.log(isNaN(inputs.base_value));
   if (inputs.base_value <= 0 || isNaN(inputs.base_value)) {
     errors.error = true;
     errors.message = "You can only use numbers and must be greater than 0";
@@ -149,6 +155,17 @@ const convert = () => {
   errors.error = false;
   inputs.convert_value = calculate(inputs.base_value, convert_rate[0].rate);
   calculated.value = true;
+
+  const history: History = {
+    base_name: inputs.base_currency_name,
+    convert_name: inputs.convert_currency_name,
+    base_code: inputs.base_currnecy_code,
+    convert_code: inputs.convert_currency_code,
+    base_rate: inputs.base_value,
+    convert_rate: convert_rate[0].rate,
+  };
+
+  store.add(history);
 };
 
 const getCurrency = async () => {
@@ -207,7 +224,7 @@ const getCurrency = async () => {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1400px;
 }
 
 .error {

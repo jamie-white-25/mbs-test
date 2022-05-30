@@ -1,6 +1,6 @@
 <template>
-  <select name="base_currency" class="bg">
-    <option @click="onChange(defaultName, defaultCode)">
+  <select class="bg">
+    <option title="select" @click="onChange(defaultName, defaultCode)">
       {{ defaultName }}
     </option>
 
