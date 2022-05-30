@@ -54,15 +54,20 @@
         </button>
       </div>
 
-      <div class="mt-10 ml-10">
-        <div class="flex">
+      <div class="mt-10 ml-10" v-show="inputs.convert_value > 0">
+        <div class="flex items-center">
           <h3 class="mx-5">You have converted:</h3>
           <p>{{ inputs.base_currency_name }} <span class="mx-5">into</span></p>
           <p>{{ inputs.convert_currency_name }}</p>
         </div>
         <div class="flex">
-          <p>{{ inputs.base_value }} <span class="mx-5">into</span></p>
-          <p>{{ inputs.convert_value }}</p>
+          <p>
+            {{ inputs.base_currnecy_code }}: {{ inputs.base_value }}
+            <span class="mx-5">to</span>
+          </p>
+          <p class="mx-5">
+            {{ inputs.convert_currency_code }}: {{ inputs.convert_value }}
+          </p>
         </div>
       </div>
     </layout-pannel>
@@ -150,6 +155,10 @@ const getCurrency = async () => {
 
 .justify-around {
   justify-content: space-around;
+}
+
+.items-center {
+  align-items: center;
 }
 
 .ml-10 {
